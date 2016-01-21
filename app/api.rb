@@ -23,7 +23,7 @@ module Saatci
       params do
         requires :id, type: String, desc: 'Timezone identifier.'
       end
-      route_param :id do
+      route_param :id, :requirements => { :id => /\w+\/\w+/ } do
         get do
           begin
             time_zone_info(params[:id])
