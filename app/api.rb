@@ -4,10 +4,13 @@ require 'json'
 require 'maxminddb'
 require 'tzinfo'
 
+require_relative 'pretty_json'
+
 module Saatci
   class API < Grape::API
     version 'v1', using: :header, vendor: 'saatci'
     format :json
+    formatter :json, Saatci::PrettyJSON
 
     IP_REGEXP = /(?:[0-9]{1,3}\.){3}[0-9]{1,3}/
 
