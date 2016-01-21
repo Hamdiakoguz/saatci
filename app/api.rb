@@ -26,16 +26,7 @@ module Saatci
       route_param :id do
         get do
           begin
-            tz = TZInfo::Timezone.get(params[:id])
-            time, period = tz.current_time_and_period
-            {
-              zoneName: tz.friendly_identifier, # The friendly name of the time zone.
-              abbreviation: period.abbreviation, # The abbreviation that identifies this observance
-              utc_offset: period.offset.utc_total_offset, # The current time offset in seconds based on UTC time.
-              dst: period.offset.dst?, # Whether Daylight Savinig Time (DST) is used. 1=Yes, 0=No
-              time: time, # Current local time
-              timestamp: time.to_i # Current local time in Unix timestamp.
-            }
+            time_zone_info(params[:id])
           rescue TZInfo::InvalidTimezoneIdentifier
             error! :not_found, 404
           end
@@ -58,9 +49,25 @@ module Saatci
             name: ret.country.name,
             latitude: ret.location.latitude,
             longitude: ret.location.longitude,
-            time_zone: ret.location.time_zone,
+            time_zone: time_zone_info(ret.location.time_zone),
           }
         end
+      end
+    end
+
+    helpers do
+      def time_zone_info(id)
+        tz = TZInfo::Timezone.get(id)
+        time, period = tz.current_time_and_period
+        {
+          identifier: tz.identifier,
+          friendly_name: tz.friendly_identifier, # The friendly name of the time zone.
+          abbreviation: period.abbreviation, # The abbreviation that identifies this observance
+          utc_offset: period.offset.utc_total_offset, # The current time offset in seconds based on UTC time.
+          dst: period.offset.dst?, # Whether Daylight Savinig Time (DST) is used. 1=Yes, 0=No
+          time: time, # Current local time
+          timestamp: time.to_i # Current local time in Unix timestamp.
+        }
       end
     end
   end
